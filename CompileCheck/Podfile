@@ -1,0 +1,8 @@
+platform :ios, '8.0'
+inhibit_all_warnings!
+
+source 'git@mci.sankuai.com:mobile/DPPods.git'
+
+target "CompileCheck" do
+    pod 'MTARichLabel', :path => '../MTARichLabel.podspec'
+end
