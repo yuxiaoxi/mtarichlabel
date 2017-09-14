@@ -49,6 +49,7 @@
     }
     
     self.attributedText = attributedStr02;
+    self.lineBreakMode = NSLineBreakByTruncatingTail;
 }
 
 //"近七天收到<font color='#ff0000'><b>七圣诞节费拉达斯</b></font>条好评,,,,近七天收到<font color='#ff0000'><b>七圣诞节费拉达斯</b></font>条好评"
@@ -66,7 +67,7 @@
         // find start of tag
         [theScanner scanUpToString:@"<" intoString:NULL] ;
         // find end of tag
-        [theScanner scanUpToString:@">" intoString:&text] ;
+        [theScanner scanUpToString:@"/" intoString:&text] ;
         
         if([text containsString:@"color"]){
             stylemode.color = [self tarStrHTML:text reg:@"['](.*)[']" repStr:@"'"];
@@ -74,22 +75,21 @@
         if([text containsString:@"<b"]){
             stylemode.bold = YES;
         }
-        html = [html stringByReplacingOccurrencesOfString:
-                [ NSString stringWithFormat:@"%@>", text]
-                                               withString:@""];
+        text = nil;
         if(stylemode.color.length>0||stylemode.bold){
             [richArray addObject:stylemode];
         }
     }
     
-    for (NSUInteger i =0; i< richArray.count; i++) {
+    for (NSUInteger i =0; i< tarArray.count; i++) {
         richArray[i].target = tarArray[i];
     }
-    richLabelMode.desc = [html stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    richLabelMode.desc = [self getDesc:html];
     richLabelMode.styleArray = richArray;
     return  richLabelMode;
 }
 
+//获取富文本的目标文字
 - (NSArray<NSString*> *)targetStr:(NSString *)html
 {
     NSScanner *theScanner = [NSScanner scannerWithString:html];
@@ -113,12 +113,14 @@
                     [tarArray addObject:text];
             }
         }
+        text = nil;
         
     }
     
     return  tarArray;
 }
 
+//去掉多余标签
 - (NSString *)getSynax:(NSString *) html
 {
     NSScanner *theScanner = [NSScanner scannerWithString:html];
@@ -135,6 +137,24 @@
     }
     
     return text;
+}
+
+//过滤掉富文本标签返回一个纯文本
+- (NSString *)getDesc:(NSString *) html
+{
+    NSScanner *theScanner = [NSScanner scannerWithString:html];
+    NSString *text = nil;
+    while ([theScanner isAtEnd] == NO) {
+        // find start of tag
+        [theScanner scanUpToString:@"<" intoString:NULL] ;
+        // find end of tag
+        [theScanner scanUpToString:@">" intoString:&text] ;
+        html = [html stringByReplacingOccurrencesOfString:
+                [ NSString stringWithFormat:@"%@>", text]
+                                               withString:@""];
+    }
+    
+    return [html stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "MTARichLabel"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
 
   s.summary      = "到综商户技术富文本label"
   s.description  = <<-DESC
